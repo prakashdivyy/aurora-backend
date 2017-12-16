@@ -10,7 +10,7 @@ export default class ScrapperManager extends Component implements IScrapperManag
 
     public async flightDetails(flightNumber: string): Promise<JsonObject> {
         try {
-            const query = flightNumber.split(" ").join("").split("0").join("");
+            const query = flightNumber;
             const content = await request.get("https://www.google.com/search?q=" + query);
 
             const $ = cheerio.load(content);
