@@ -20,7 +20,7 @@
     "cheerio": "^1.0.0-rc.2",
     "js-yaml": "^3.10.0",
     "merapi": "^0.18.3",
-    "merapi-plugin-express": "^0.3.7",
+    "merapi-plugin-express-heroku": "git+https://github.com/prakashdivyy/merapi-plugin-express-heroku.git",
     "request": "^2.83.0",
     "request-promise": "^4.2.2"
   },

@@ -4,7 +4,7 @@ name: ${package.name}
 version: ${package.version}
 
 plugins:
-    - express
+    - express-heroku
 
 components:
     app:
