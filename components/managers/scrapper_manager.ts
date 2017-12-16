@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import { IScrapperManager } from "interfaces/managers";
+import * as _ from "lodash";
 import { Component, JsonObject } from "merapi";
 import * as request from "request-promise";
 
@@ -10,43 +11,47 @@ export default class ScrapperManager extends Component implements IScrapperManag
 
     public async flightDetails(flightNumber: string): Promise<JsonObject> {
         try {
-            const query = flightNumber;
-            const content = await request.get("https://www.google.com/search?q=" + query);
+            const code = flightNumber.split(" ");
+            const page = code[0].toLowerCase() + parseInt(code[1], 10);
 
+            const content = await request.get("https://utiket.com/en/flights/schedule/" + page + ".html");
             const $ = cheerio.load(content);
-            const flightDetails = $("#ires tbody").parent().parent().children().html().split(" Flight ");
-            const result = $("#ires tbody").toArray()[0].children;
+            const flightDetails = $(".content-content h1").text().split(" Flight number ");
 
-            const originCode = result[1].children[1].children[0].data;
-            const originTime = result[1].children[2].children[0].data;
-            const originCity = result[2].children[1].children[0].data;
-            const originTerminal = result[1].children[4].children[0].data.split("Terminal ")[1];
+            if (flightDetails.length === 1) {
+                return {
+                    success: false,
+                };
+            }
 
-            const destinationCode = result[4].children[1].children[0].data;
-            const destinationTime = result[4].children[2].children[0].data;
-            const destinationCity = result[5].children[1].children[0].data;
-            const destinationTerminal = result[4].children[4].children[0].data.split("Terminal ")[1];
+            const route = $(".content-content h2").text().split("From ")[1].split(" to ");
+            const rows = _.map($("#flight-number-box").html().replace(/\t/g, "").replace(/\n/g, "").split("<hr>"), (e) => {
+                const d = e.split("<br>");
+                return _.map(d, (x) => {
+                    return x.trim();
+                });
+            });
 
             const origin = {
-                city: originCity ? originCity : "-",
-                code: originCode ? originCode : "-",
-                terminal: originTerminal ? originTerminal : "-",
-                time: originTime ? originTime : "-",
+                airport: cheerio.load(rows[2][1])(":root").text().split("Airport name")[1],
+                airportCode: cheerio.load(rows[2][2])(":root").text().split("IATA Airport code ")[1],
+                city: route[0],
+                country: cheerio.load(rows[2][3])(":root").text().split("Country")[1],
+                time: rows[0][0].split("</label>")[1],
             };
 
             const destination = {
-                city: destinationCity ? destinationCity : "-",
-                code: destinationCode ? destinationCode : "-",
-                terminal: destinationTerminal ? destinationTerminal : "-",
-                time: destinationTime ? destinationTime : "-",
+                airport: cheerio.load(rows[3][1])(":root").text().split("Airport name")[1],
+                airportCode: cheerio.load(rows[3][2])(":root").text().split("IATA Airport code ")[1],
+                city: route[0],
+                country: cheerio.load(rows[3][3])(":root").text().split("Country")[1],
+                time: rows[0][1].split("</label>")[1],
             };
 
-            const flightCode = query.split(flightDetails[1])[0].toUpperCase() + " " + flightDetails[1];
-
             const searchResult = {
-                airlane: flightDetails[0],
+                airline: flightDetails[0],
                 destination,
-                flightCode,
+                flightNumber,
                 origin,
             };
 
