@@ -1,0 +1,30 @@
+schema: kata.ai/schema/merapi/1.0
+
+name: ${package.name}
+version: ${package.version}
+
+plugins:
+    - express
+
+components:
+    app:
+        type: express
+        config: app
+
+    api: controllers/ApiController
+    scrapperManager: managers/ScrapperManager
+
+    main: Main
+
+app:
+    port: ${$PORT}
+   
+    router:
+        mergeParams: true
+
+    routes:
+        GET /flightDetails:
+            - api.getFlightDetails
+
+# entry point
+main: main
