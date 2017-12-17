@@ -48,7 +48,7 @@ export default class ScrapperManager extends Component implements IScrapperManag
                 const destination = {
                     airport: cheerio.load(rows[3][1])(":root").text().split("Airport name")[1],
                     airportCode: cheerio.load(rows[3][2])(":root").text().split("IATA Airport code ")[1],
-                    city: route[0],
+                    city: route[1],
                     country: cheerio.load(rows[3][3])(":root").text().split("Country")[1],
                     time: rows[0][1].split("</label>")[1],
                 };
@@ -65,8 +65,7 @@ export default class ScrapperManager extends Component implements IScrapperManag
                     success: true,
                 };
 
-                await this.redisRepo.setex(page, JSON.stringify(result), 28800);
-
+                await this.redisRepo.setex(page, JSON.stringify(result), 3600);
                 return result;
             }
         } catch (e) {

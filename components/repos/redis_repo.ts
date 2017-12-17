@@ -43,18 +43,6 @@ export default class RedisRepo extends Component implements IRedisRepo {
         }
     }
 
-    public delete(key: string, hash?: string): Promise<number> {
-        if (hash) {
-            return new Promise((resolve, reject) => {
-                resolve(this.redisClient.hdel(key, hash));
-            });
-        } else {
-            return new Promise((resolve, reject) => {
-                resolve(this.redisClient.del(key));
-            });
-        }
-    }
-
     public setex(key: string, data: string, ttl: number): Promise<string> {
         return new Promise((resolve, reject) => {
             this.redisClient.setex(key, ttl, data, (err: Error, result: any) => {
