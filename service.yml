@@ -13,8 +13,12 @@ components:
 
     api: controllers/ApiController
     scrapperManager: managers/ScrapperManager
+    redisRepo: repos/RedisRepo
 
     main: Main
+
+redis:
+    url: ${$REDIS_URL}
 
 app:
     port: ${$PORT}
